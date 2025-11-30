@@ -228,7 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginSpinner = document.getElementById('loginSpinner');
 
   
-      // función global, accesible desde onclick en HTML
   window.toggleForms = function(form) {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
@@ -243,11 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  // URL del endpoint de login. Si tu backend usa /api/login cambia aquí.
   const LOGIN_URL = '/login';
 
   function showFeedback(message, type = 'danger', timeout = 4000) {
-    // type: 'success' | 'danger' | 'warning' | 'info'
     feedbackAlert.className = `alert alert-${type}`;
     feedbackAlert.textContent = message;
     feedbackAlert.style.display = 'block';
@@ -271,7 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Si ya existe token guardado, añade el header por defecto a Axios
   const existingToken = localStorage.getItem('token') || sessionStorage.getItem('token');
   if (existingToken) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
@@ -279,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // limpiar feedback previo
     feedbackAlert.style.display = 'none';
 
     const correo = emailInput.value && emailInput.value.trim();
@@ -297,7 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' }
       });
 
-      // espera que el backend devuelva { token: '...', usuario: {...} }
       const token = res.data && res.data.token;
       if (!token) {
         showFeedback('Respuesta inválida del servidor (falta token).', 'danger');
@@ -305,27 +299,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Guardar token según "Recordarme"
       if (rememberCheckbox.checked) {
         localStorage.setItem('token', token);
       } else {
         sessionStorage.setItem('token', token);
       }
 
-      // Configurar axios para futuras peticiones
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      // Mensaje y redirección
       showFeedback('Inicio de sesión correcto. Redirigiendo...', 'success', 1500);
 
-      // Si tu backend devuelve una ruta a la que redirigir: res.data.redirect
       const redirectTo = (res.data && res.data.redirect) ? res.data.redirect : '/home.html';
       setTimeout(() => {
         window.location.href = '/home.html';
       }, 800);
 
     } catch (err) {
-      // Si backend responde 401 o 400, mostrar mensaje pertinente
       if (err.response && err.response.status === 401) {
         showFeedback('Credenciales incorrectas. Verifica correo y contraseña.', 'danger', 4000);
       } else if (err.response && err.response.data && err.response.data.mensaje) {

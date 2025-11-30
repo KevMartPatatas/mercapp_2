@@ -697,33 +697,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const mockShops = [
-            { id: 1, name: "Tacos Ciro's", owner: "Kevin Escobar", plan: "Premium Tuxtla", verified: true, logo: "TC" },
-            { id: 2, name: "TechZone", owner: "Carlos Ruiz", plan: "Gratuito", verified: false, logo: "TZ" },
-            { id: 3, name: "Ropa Artesanal", owner: "Maria López", plan: "Gratuito", verified: false, logo: "RA" },
-        ];
-
-        const mockOrders = [
-            { id: 1024, client: "Juan Pérez", shop: "Tacos Ciro's", total: 250.00, status: "entregado" },
-            { id: 1025, client: "Ana García", shop: "TechZone", total: 1200.00, status: "procesando" },
-            { id: 1026, client: "Luis Diaz", shop: "Tacos Ciro's", total: 85.00, status: "pendiente" },
-        ];
-
-        // NUEVOS DATOS PARA EL CATÁLOGO
-        const mockCategories = [
-            { id: 1, name: "Comida", parent: null, count: 120, icon: "fa-utensils" },
-            { id: 2, name: "Tecnología", parent: null, count: 45, icon: "fa-laptop" },
-            { id: 3, name: "Tacos", parent: "Comida", count: 15, icon: "fa-angle-right" },
-        ];
-
-        const mockProducts = [
-            { id: 101, name: "Orden de Pastor", shop: "Tacos Ciro's", category: "Tacos", price: 65.00, stock: 50, active: true, img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=100&h=100&fit=crop" },
-            { id: 102, name: "Laptop Gamer HP", shop: "TechZone", category: "Tecnología", price: 15999.00, stock: 2, active: true, img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=100&h=100&fit=crop" },
-            { id: 103, name: "Coca Cola 600ml", shop: "Tacos Ciro's", category: "Bebidas", price: 25.00, stock: 0, active: false, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=100&h=100&fit=crop" },
-        ];
-
-        // --- LÓGICA DE NAVEGACIÓN ---
-        
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
@@ -756,7 +729,7 @@
 
         // --- RENDERS ---
 
-let allUsers = []; // Variable global para guardar los datos originales
+let allUsers = [];
 
 // 1. Función principal: Carga los datos de la API
 async function loadUsers() {
@@ -765,14 +738,12 @@ async function loadUsers() {
 
     try {
         const res = await axios.get(USERS_URL);
-        allUsers = res.data; // Guardamos en memoria global
+        allUsers = res.data;
         
         console.log('Usuarios recibidos:', allUsers);
 
-        // Renderizamos todo al principio
         renderTable(allUsers);
         
-        // Activamos los escuchadores de los filtros
         setupFilters();
 
     } catch (err) {
@@ -784,7 +755,6 @@ async function loadUsers() {
     }
 }
 
-// 2. Función dedicada SOLO a pintar la tabla
 function renderTable(usersList) {
     const usersTableBody = document.getElementById("usersTableBody");
     
@@ -825,12 +795,10 @@ function renderTable(usersList) {
     `).join('');
 }
 
-// 3. Configuración de Filtros
 function setupFilters() {
     const searchInput = document.getElementById('searchInput');
     const roleFilter = document.getElementById('roleFilter');
 
-    // Validación de seguridad por si faltan los IDs en el HTML
     if (!searchInput || !roleFilter) return;
 
     function applyFilters() {
@@ -853,11 +821,9 @@ function setupFilters() {
     roleFilter.addEventListener('change', applyFilters);
 }
 
-// 4. Configurar los clicks de la tabla (Delegación de eventos)
 function setupTableActions() {
     const usersTableBody = document.getElementById("usersTableBody");
 
-    // Validación de seguridad
     if (!usersTableBody) return;
 
     usersTableBody.addEventListener('click', (e) => {
@@ -876,7 +842,6 @@ function setupTableActions() {
     });
 }
 
-// 5. Lógica para Eliminar
 async function deleteUser(id) {
     if (!confirm("¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.")) {
         return;
@@ -885,10 +850,8 @@ async function deleteUser(id) {
     try {
         await axios.delete(`/usuarios/${id}`);
         
-        // CORRECCIÓN AQUÍ: Usamos user.id_usuario
         allUsers = allUsers.filter(user => user.id_usuario != id);
         
-        // Actualizamos la vista
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.dispatchEvent(new Event('input')); 
@@ -903,15 +866,10 @@ async function deleteUser(id) {
         alert("Error al eliminar el usuario.");
     }
 }
-
-// 6. Lógica para Editar
-// A. Función para ABRIR el modal y cargar datos
 function editUser(id) {
     const user = allUsers.find(u => u.id_usuario == id);
     if (!user) return;
 
-    // --- ASEGÚRATE DE ESTO ---
-    // El value de 'editUserId' debe ser el NUMERO (id_usuario), no el rol.
     document.getElementById('editUserId').value = user.id_usuario; 
     
     document.getElementById('editNombre').value = user.nombre_completo || '';
@@ -923,17 +881,13 @@ function editUser(id) {
     modal.show();
 }
 
-// B. Función para GUARDAR los cambios
 function setupModalActions() {
     const btnGuardar = document.getElementById('btnGuardarCambios');
     
-    // Clonamos el botón para limpiar eventos anteriores
     const newBtn = btnGuardar.cloneNode(true);
     btnGuardar.parentNode.replaceChild(newBtn, btnGuardar);
 
     newBtn.addEventListener('click', async () => {
-        // --- AQUÍ ESTABA EL PROBLEMA: CAPTURA DE DATOS ---
-        // Debemos asegurarnos de que cada variable tome el valor de su ID correspondiente en el HTML
         
         const id = document.getElementById('editUserId').value;         // El ID oculto
         const nombre = document.getElementById('editNombre').value;     // El Input de texto
@@ -941,7 +895,6 @@ function setupModalActions() {
         const telefono = document.getElementById('editTelefono').value; // El Input de teléfono
         const rol = document.getElementById('editRol').value;           // El Select
 
-        // DIAGNÓSTICO: Esto te mostrará en la consola qué estás enviando antes de que falle
         console.log("Datos capturados del formulario:", {
             id: id,
             nombre: nombre,
@@ -950,7 +903,6 @@ function setupModalActions() {
             rol: rol
         });
 
-        // Validaciones básicas
         if(!id) {
             alert("Error fatal: No se cargó el ID del usuario. Recarga la página.");
             return;
@@ -960,7 +912,6 @@ function setupModalActions() {
             return;
         }
 
-        // Creamos el objeto exactamente como lo espera la base de datos
         const datosActualizados = {
             nombre_completo: nombre, 
             correo: correo,
@@ -969,11 +920,9 @@ function setupModalActions() {
         };
 
         try {
-            // Enviamos la petición PUT usando el ID correcto en la URL
             await axios.put(`/usuarios/${id}`, datosActualizados);
 
-            // Actualizar memoria local
-            const index = allUsers.findIndex(u => u.id_usuario == id); // Usamos == por si id es string y memoria int
+            const index = allUsers.findIndex(u => u.id_usuario == id);
             if (index !== -1) {
                 allUsers[index] = { ...allUsers[index], ...datosActualizados };
             }
@@ -1001,20 +950,17 @@ function setupCreateUser() {
     const btnCrear = document.getElementById('btnCrearUsuario');
 
     btnCrear.addEventListener('click', async () => {
-        // 1. Obtener valores
         const nombre = document.getElementById('newNombre').value;
         const correo = document.getElementById('newCorreo').value;
         const telefono = document.getElementById('newTelefono').value;
         const password = document.getElementById('newPassword').value;
         const rol = document.getElementById('newRol').value;
 
-        // 2. Validaciones
         if (!nombre || !correo || !password) {
             alert("Por favor completa los campos obligatorios (Nombre, Correo, Contraseña)");
             return;
         }
 
-        // 3. Preparar el objeto (Tal cual lo tienes en Postman)
         const nuevoUsuario = {
             nombre: nombre,
             correo: correo,
@@ -1024,28 +970,21 @@ function setupCreateUser() {
         };
 
         try {
-            // 4. Enviar al Backend (POST)
-            // Asumo que tu ruta para crear es POST /usuarios
             const res = await axios.post('/usuarios', nuevoUsuario);
             
             console.log("Usuario creado:", res.data);
 
-            // 5. Actualizar la interfaz sin recargar
-            // Creamos un objeto temporal para la tabla. 
-            // IMPORTANTE: Tu tabla usa 'nombre_completo', pero el input es 'nombre'. Mapeamos aquí.
             const usuarioParaTabla = {
-                id_usuario: res.data.id || res.data.insertId || Date.now(), // Intentamos obtener el ID nuevo
-                nombre_completo: nombre, // Adaptamos para que la tabla lo entienda
+                id_usuario: res.data.id || res.data.insertId || Date.now(), 
+                nombre_completo: nombre,
                 correo: correo,
                 telefono: telefono,
                 rol: rol,
-                fecha_registro: new Date().toISOString() // Fecha actual simulada
+                fecha_registro: new Date().toISOString() 
             };
 
-            // Agregamos al inicio del array y repintamos
             allUsers.unshift(usuarioParaTabla);
             
-            // Limpiamos filtros y repintamos
             const searchInput = document.getElementById('searchInput');
             if(searchInput) {
                 searchInput.value = ''; // Limpiamos buscador para ver al nuevo usuario
@@ -1054,7 +993,6 @@ function setupCreateUser() {
                 renderTable(allUsers);
             }
 
-            // 6. Cerrar modal y limpiar formulario
             const modalElement = document.getElementById('modalNuevoUsuario');
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
@@ -1072,7 +1010,7 @@ function setupCreateUser() {
 
 async function loadCategories() {
     console.log('Cargando categorías...');
-    const CATEGORIES_URL = "/categorias"; // Asegúrate que esta sea tu ruta correcta
+    const CATEGORIES_URL = "/categorias"; 
 
     try {
         const res = await axios.get(CATEGORIES_URL);
@@ -1083,15 +1021,12 @@ async function loadCategories() {
 
     } catch (err) {
         console.error("Error al cargar categorías:", err);
-        // Opcional: mostrar mensaje de error en la tabla
     }
 }
 
-// Función para renderizar la tabla de Categorías con TU estructura
 function renderCategoriesTable(categoriesList) {
     const tableBody = document.getElementById("categoriesTableBody");
     
-    // Validación de seguridad
     if (!tableBody) return;
 
     if (categoriesList.length === 0) {
@@ -1146,15 +1081,10 @@ function setupCreateCategory() {
     const btnGuardar = document.getElementById('btnGuardarCategoria');
     const selectPadre = document.getElementById('catPadre');
 
-    // EVENTO 1: Cuando el modal se va a abrir, llenamos el Select con las categorías existentes
     modalElement.addEventListener('show.bs.modal', () => {
-        // Limpiamos opciones anteriores (dejando la primera por defecto)
         selectPadre.innerHTML = '<option value="" selected disabled>Selecciona la categoría padre...</option>';
         
-        // Llenamos con las categorías que ya cargaste en loadCategories()
         allCategories.forEach(cat => {
-            // --- AQUÍ ESTÁ EL FILTRO MÁGICO ---
-            // Solo mostramos las categorías que NO tienen padre (id_padre === null)
             if (cat.id_padre === null) {
                 const option = document.createElement('option');
                 option.value = cat.id_categoria; 
@@ -1164,11 +1094,10 @@ function setupCreateCategory() {
         });
     });
 
-    // EVENTO 2: Guardar la nueva categoría
     btnGuardar.addEventListener('click', async () => {
         const nombre = document.getElementById('catNombre').value;
         const idPadre = document.getElementById('catPadre').value;
-        const icono = document.getElementById('catIcono').value || 'fas fa-tag'; // Default si está vacío
+        const icono = document.getElementById('catIcono').value || 'fas fa-tag'; 
 
         if (!nombre || !idPadre) {
             alert("Debes escribir un nombre y seleccionar una categoría padre.");
@@ -1177,20 +1106,17 @@ function setupCreateCategory() {
 
         const nuevaCategoria = {
             nombre: nombre,
-            id_padre: idPadre, // Aquí va el ID que pediste
-            url_imagen: icono  // Tu BD lo necesita
+            id_padre: idPadre,
+            url_imagen: icono  
         };
 
         try {
-            // Ajusta la ruta a tu backend
             const res = await axios.post('/categorias', nuevaCategoria);
             
             console.log("Categoría creada:", res.data);
 
-            // Actualizamos la tabla visualmente (Simulamos la inserción o recargamos)
-            await loadCategories(); // Recargamos para ver la nueva data fresca
+            await loadCategories();
 
-            // Cerramos modal y limpiamos
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
             document.getElementById('formNuevaCategoria').reset();
@@ -1211,11 +1137,9 @@ function setupCategoryActions() {
     if (!tableBody) return;
 
     tableBody.addEventListener('click', async (e) => {
-        // Identificar botones
         const deleteBtn = e.target.closest('.btn-delete-cat');
         const editBtn = e.target.closest('.btn-edit-cat');
 
-        // --- ACCIÓN: ELIMINAR (Ya la tenías) ---
         if (deleteBtn) {
             const id = deleteBtn.getAttribute('data-id');
             if (confirm("¿Eliminar esta subcategoría?")) {
@@ -1227,32 +1151,25 @@ function setupCategoryActions() {
             }
         }
 
-        // --- ACCIÓN: EDITAR (Nueva) ---
         if (editBtn) {
             const id = editBtn.getAttribute('data-id');
             
-            // 1. Buscamos los datos de la categoría en nuestra memoria
             const cat = allCategories.find(c => c.id_categoria == id);
             if (!cat) return;
 
-            // 2. Llenamos el formulario
             document.getElementById('editCatId').value = cat.id_categoria;
             document.getElementById('editCatNombre').value = cat.nombre;
             document.getElementById('editCatIcono').value = cat.url_imagen;
 
-            // 3. Llenamos el Select de Padres (Igual que en crear)
             const selectPadre = document.getElementById('editCatPadre');
-            selectPadre.innerHTML = ''; // Limpiamos
+            selectPadre.innerHTML = ''; 
 
             allCategories.forEach(parent => {
-                // Solo mostramos categorías raíz
-                // Usamos la misma lógica blindada: si no tiene nombre_padre, es raíz
                 if (!parent.nombre_padre) {
                     const option = document.createElement('option');
                     option.value = parent.id_categoria;
                     option.textContent = parent.nombre;
                     
-                    // Si este es el padre actual, lo seleccionamos
                     if (parent.id_categoria == cat.id_padre) {
                         option.selected = true;
                     }
@@ -1260,16 +1177,13 @@ function setupCategoryActions() {
                 }
             });
 
-            // 4. Abrimos el Modal
             const modal = new bootstrap.Modal(document.getElementById('modalEditarCategoria'));
             modal.show();
         }
     });
 
-    // --- GUARDAR CAMBIOS (Listener del botón dentro del modal) ---
     const btnActualizar = document.getElementById('btnActualizarCategoria');
     
-    // Clonamos para evitar múltiples listeners
     const newBtn = btnActualizar.cloneNode(true);
     btnActualizar.parentNode.replaceChild(newBtn, btnActualizar);
 
@@ -1311,37 +1225,26 @@ function setupCategoryFilters() {
     const searchInput = document.getElementById('searchCategoryInput');
     const filterSelect = document.getElementById('filterCategorySelect');
 
-    // Validación de seguridad
     if (!searchInput || !filterSelect) return;
 
-    // 1. LLENAR EL SELECT DINÁMICAMENTE
-    // Filtramos solo las categorías que son PADRES (Raíz) para ponerlas en el dropdown
     const categoriasRaiz = allCategories.filter(c => !c.nombre_padre);
     
-    // Limpiamos y dejamos la opción por defecto
     filterSelect.innerHTML = '<option value="">Todas las categorías</option>';
 
     categoriasRaiz.forEach(cat => {
         const option = document.createElement('option');
-        option.value = cat.id_categoria; // El value es el ID (ej. 5)
-        option.textContent = cat.nombre; // El texto es "Tecnología"
+        option.value = cat.id_categoria; 
+        option.textContent = cat.nombre;
         filterSelect.appendChild(option);
     });
 
-    // 2. FUNCIÓN DE FILTRADO (TEXTO + SELECT)
     function applyFilters() {
         const searchText = searchInput.value.toLowerCase();
-        const selectedParentId = filterSelect.value; // ID de la categoría seleccionada (ej. "5")
+        const selectedParentId = filterSelect.value; 
 
         const filteredList = allCategories.filter(cat => {
-            // A) Filtro de Texto: Busca en el nombre de la categoría
             const matchesSearch = cat.nombre.toLowerCase().includes(searchText);
 
-            // B) Filtro de Categoría (La lógica que pediste)
-            // Si no hay nada seleccionado (""), pasa todo.
-            // Si hay algo seleccionado (ej. 5), pasa si:
-            //    1. Es la categoría padre misma (cat.id_categoria == 5)
-            //    2. O es una hija de ese padre (cat.id_padre == 5)
             const matchesCategory = selectedParentId === "" || 
                                     cat.id_categoria == selectedParentId || 
                                     cat.id_padre == selectedParentId;
@@ -1349,11 +1252,9 @@ function setupCategoryFilters() {
             return matchesSearch && matchesCategory;
         });
 
-        // Repintamos la tabla con los resultados filtrados
         renderCategoriesTable(filteredList);
     }
 
-    // 3. ACTIVAR LISTENERS
     searchInput.addEventListener('input', applyFilters);
     filterSelect.addEventListener('change', applyFilters);
 }
@@ -1362,37 +1263,26 @@ function setupCategoryFilters() {
     const searchInput = document.getElementById('searchCategoryInput');
     const filterSelect = document.getElementById('filterCategorySelect');
 
-    // Validación de seguridad
     if (!searchInput || !filterSelect) return;
 
-    // 1. LLENAR EL SELECT DINÁMICAMENTE
-    // Filtramos solo las categorías que son PADRES (Raíz) para ponerlas en el dropdown
     const categoriasRaiz = allCategories.filter(c => !c.nombre_padre);
     
-    // Limpiamos y dejamos la opción por defecto
     filterSelect.innerHTML = '<option value="">Todas las categorías</option>';
 
     categoriasRaiz.forEach(cat => {
         const option = document.createElement('option');
-        option.value = cat.id_categoria; // El value es el ID (ej. 5)
-        option.textContent = cat.nombre; // El texto es "Tecnología"
+        option.value = cat.id_categoria; 
+        option.textContent = cat.nombre; 
         filterSelect.appendChild(option);
     });
 
-    // 2. FUNCIÓN DE FILTRADO (TEXTO + SELECT)
     function applyFilters() {
         const searchText = searchInput.value.toLowerCase();
-        const selectedParentId = filterSelect.value; // ID de la categoría seleccionada (ej. "5")
+        const selectedParentId = filterSelect.value; 
 
         const filteredList = allCategories.filter(cat => {
-            // A) Filtro de Texto: Busca en el nombre de la categoría
             const matchesSearch = cat.nombre.toLowerCase().includes(searchText);
 
-            // B) Filtro de Categoría (La lógica que pediste)
-            // Si no hay nada seleccionado (""), pasa todo.
-            // Si hay algo seleccionado (ej. 5), pasa si:
-            //    1. Es la categoría padre misma (cat.id_categoria == 5)
-            //    2. O es una hija de ese padre (cat.id_padre == 5)
             const matchesCategory = selectedParentId === "" || 
                                     cat.id_categoria == selectedParentId || 
                                     cat.id_padre == selectedParentId;
@@ -1400,11 +1290,9 @@ function setupCategoryFilters() {
             return matchesSearch && matchesCategory;
         });
 
-        // Repintamos la tabla con los resultados filtrados
         renderCategoriesTable(filteredList);
     }
 
-    // 3. ACTIVAR LISTENERS
     searchInput.addEventListener('input', applyFilters);
     filterSelect.addEventListener('change', applyFilters);
 }
@@ -1415,11 +1303,11 @@ async function loadCategories() {
 
     try {
         const res = await axios.get(CATEGORIES_URL);
-        allCategories = res.data; // Guardamos en memoria
+        allCategories = res.data; 
         
-        renderCategoriesTable(allCategories); // Pintamos tabla inicial
+        renderCategoriesTable(allCategories); 
         
-        setupCategoryFilters(); // <--- AQUÍ ACTIVAMOS LOS FILTROS
+        setupCategoryFilters(); 
 
     } catch (err) {
         console.error("Error al cargar categorías:", err);
@@ -1428,20 +1316,16 @@ async function loadCategories() {
 
 let allProducts = []; // Variable global para guardar los productos
 
-// 1. CARGAR DATOS
 async function loadProducts() {
     console.log("Cargando productos reales...");
     try {
         const res = await axios.get('/productos');
         allProducts = res.data;
         
-        // Renderizamos la tabla
         renderProductsTable(allProducts);
         
-        // Llenamos el select de comercios para el filtro
         fillShopFilter();
         
-        // Activamos los filtros
         setupProductFilters();
 
     } catch (err) {
@@ -1451,7 +1335,6 @@ async function loadProducts() {
     }
 }
 
-// 2. RENDERIZAR TABLA (Adaptada a tu HTML y BD)
 function renderProductsTable(list) {
     const tbody = document.getElementById('productsTableBody');
     
@@ -1509,9 +1392,7 @@ function renderProductsTable(list) {
     `).join('');
 }
 
-// 3. LOGICA DE FILTROS (Buscador y Select de Comercio)
 function setupProductFilters() {
-    // Asignamos IDs a tus inputs del HTML para encontrarlos (asegúrate de ponerles ID en el HTML)
     const searchInput = document.querySelector('input[placeholder="Buscar producto..."]'); 
     const shopSelect = document.querySelector('select.form-select'); 
 
@@ -1532,11 +1413,9 @@ function setupProductFilters() {
     shopSelect.addEventListener('change', applyFilters);
 }
 
-// 4. LLENAR EL SELECT DE COMERCIOS DINÁMICAMENTE
 function fillShopFilter() {
     const shopSelect = document.querySelector('select.form-select');
     
-    // Obtenemos una lista única de nombres de comercios
     const comerciosUnicos = [...new Set(allProducts.map(p => p.nombre_comercio).filter(Boolean))];
     
     let options = '<option selected>Todos los comercios</option>';
@@ -1547,16 +1426,15 @@ function fillShopFilter() {
     shopSelect.innerHTML = options;
 }
 
-// 7. Iniciar al cargar el DOM
 document.addEventListener("DOMContentLoaded", () => {
     loadUsers();
     setupFilters();
     setupTableActions();
-    setupModalActions(); // <--- AGREGA ESTO
-    setupCreateUser();   // <--- AGREGAR ESTO (Crear
+    setupModalActions();
+    setupCreateUser(); 
     loadCategories();
-    setupCreateCategory(); // <--- Agrega esto
-    setupCategoryActions(); // <--- AGREGA ESTA NUEVA
+    setupCreateCategory();
+    setupCategoryActions();
     loadProducts();
 });
 
@@ -1589,7 +1467,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 </tr>
             `).join('');
 
-            // También llenamos la lista lateral de dashboard
             const list = document.getElementById('newShopsList');
             list.innerHTML = mockShops.slice(0,3).map(s => `
                 <li class="d-flex align-items-center mb-3">
@@ -1622,10 +1499,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 </tr>
             `).join('');
         }
-
-        // --- NUEVOS RENDERS PARA EL CATÁLOGO ---
-
-        // INIT
 
 
     </script>

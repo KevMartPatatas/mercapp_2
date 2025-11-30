@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const conection = require('../bd/db');
-const bcrypt = require('bcryptjs'); // (Opcional si no lo usas en este archivo puedes quitarlo)
+const bcrypt = require('bcryptjs');
 
 
-// GET: Obtener productos (Con nombres de Comercio y Categoría)
+// GET: Obtener productos
 router.get('/', async (req, res) => {
     const sql = `
         SELECT 
@@ -62,10 +62,9 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE: Borrado Lógico (Recomendado para no romper historiales de ventas)
+// DELETE: Borrado Lógico
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
-    // En vez de DELETE FROM, hacemos UPDATE activo = 0
     const sql = 'UPDATE productos SET activo = 0 WHERE id_producto = ?';
     
     try {

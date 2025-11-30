@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const conection = require('../bd/db');
-const bcrypt = require('bcryptjs'); // (Opcional si no lo usas en este archivo puedes quitarlo)
+const bcrypt = require('bcryptjs');
 
-// GET: Obtener categorías (Corregido a async/await)
+// GET: Obtener categorías 
 router.get('/', async (req, res) => {
     const sql = `
         SELECT 
@@ -18,8 +18,6 @@ router.get('/', async (req, res) => {
     `;
     
     try {
-        // Al usar promesas, la consulta devuelve un array: [filas, metadatos]
-        // Por eso usamos const [results]
         const [results] = await conection.query(sql);
         
         console.log("Categorías enviadas al frontend:", results); 
@@ -31,11 +29,10 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST: Crear nueva categoría (Corregido a async/await)
+// POST:
 router.post('/', async (req, res) => {
     const { nombre, id_padre, url_imagen } = req.body;
 
-    // Validación básica
     if (!nombre || !id_padre) {
         return res.status(400).json({ error: 'El nombre y la categoría padre son obligatorios' });
     }
@@ -67,11 +64,9 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Ejecutamos la eliminación
         const sql = 'DELETE FROM categorias WHERE id_categoria = ?';
         const [result] = await conection.query(sql, [id]);
 
-        // Verificamos si realmente se borró algo
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'La categoría no existe' });
         }
@@ -80,7 +75,6 @@ router.delete('/:id', async (req, res) => {
 
     } catch (err) {
         console.error("Error al eliminar:", err);
-        // Error común: Intentar borrar una categoría que tiene productos asignados (Constraint foreign key)
         res.status(500).json({ error: 'No se pudo eliminar. Verifique que no tenga productos asignados.' });
     }
 });
@@ -90,7 +84,6 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, id_padre, url_imagen } = req.body;
 
-    // El icono por defecto si lo dejan vacío
     const iconoFinal = url_imagen || 'fas fa-folder';
 
     const sql = 'UPDATE categorias SET nombre = ?, id_padre = ?, url_imagen = ? WHERE id_categoria = ?';

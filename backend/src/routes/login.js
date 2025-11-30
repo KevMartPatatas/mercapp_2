@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../bd/db'); // tu conexión MySQL
+const db = require('../bd/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
