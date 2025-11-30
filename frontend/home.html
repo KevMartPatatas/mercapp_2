@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercapp - Tu Mercado Local</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --accent-color: #ff9f43; /* Naranja Mercapp */
+            --accent-hover: #ff8c1a;
+            --text-dark: #333;
+            --bg-light: #f4f7f6;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        /* --- NAVBAR --- */
+        .navbar-mercapp {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand span {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .search-bar-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-input {
+            border-radius: 50px;
+            background: #f0f2f5;
+            border: none;
+            padding: 12px 20px 12px 45px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            background: white;
+            box-shadow: 0 0 0 2px #6a11cb;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .nav-icon-btn {
+            position: relative;
+            color: #555;
+            font-size: 1.2rem;
+            margin-left: 15px;
+            transition: 0.2s;
+        }
+
+        .nav-icon-btn:hover {
+            color: #6a11cb;
+        }
+
+        .badge-cart {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background: var(--accent-color);
+            font-size: 0.7rem;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero-section {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 0 0 30px 30px;
+            padding: 60px 0 80px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .hero-pattern {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-cta {
+            background-color: var(--accent-color);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            color: white;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-cta:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            color: white;
+        }
+
+        /* --- CATEGORÍAS --- */
+        .category-item {
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .category-icon {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            box-shadow: var(--card-shadow);
+            font-size: 1.5rem;
+            color: #6a11cb;
+            transition: 0.3s;
+        }
+
+        .category-item:hover .category-icon {
+            background: #6a11cb;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .category-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* --- CARDS (PRODUCTOS Y COMERCIOS) --- */
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 25px;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            bottom: 5px;
+            width: 5px;
+            background: var(--accent-color);
+            border-radius: 5px;
+        }
+
+        .card-mercapp {
+            border: none;
+            border-radius: 15px;
+            background: white;
+            transition: 0.3s;
+            overflow: hidden;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
+
+        .card-mercapp:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-img-top {
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .price-tag {
+            color: #6a11cb;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .shop-badge {
+            font-size: 0.75rem;
+            background: #f0f2f5;
+            color: #666;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .btn-add {
+            background: #f0f2f5;
+            color: #333;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .btn-add:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: white;
+            padding: 50px 0 20px;
+            margin-top: 60px;
+            border-top: 1px solid #eee;
+        }
+        
+        .footer-logo {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        /* Banner Fidelización */
+        .banner-points {
+            background: linear-gradient(90deg, #ff9f43 0%, #ff6b6b 100%);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner-points img {
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            height: 120%;
+            opacity: 0.2;
+            transform: rotate(-10deg);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-mercapp">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <i class="fas fa-shopping-basket text-primary fs-3"></i>
+                <span>Mercapp</span>
+            </a>
+
+            <!-- Toggle Mobile -->
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarContent">
+                <!-- Buscador Central -->
+                <div class="mx-lg-auto mb-3 mb-lg-0 search-bar-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Buscar tacos, ropa, servicios...">
+                </div>
+
+                <!-- Menú Derecha -->
+                <div class="d-flex align-items-center">
+                    <div class="d-none d-lg-block border-end mx-3" style="height: 30px;"></div>
+                    
+                    <a href="#" class="nav-icon-btn" title="Mis Pedidos">
+                        <i class="far fa-heart"></i>
+                    </a>
+                    
+                    <a href="#" class="nav-icon-btn position-relative" title="Carrito">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge rounded-pill badge-cart">3</span>
+                    </a>
+
+                    <!-- Dropdown Usuario -->
+                    <div class="dropdown ms-3">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDrop" data-bs-toggle="dropdown">
+                            <img src="https://ui-avatars.com/api/?name=Usuario+Mercapp&background=6a11cb&color=fff" class="rounded-circle" width="35" height="35" alt="Avatar">
+                            <span class="ms-2 d-none d-lg-block small fw-bold text-dark">Mi Cuenta</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2 text-muted"></i> Perfil</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-history me-2 text-muted"></i> Historial</a></li>
+                            <li><a class="dropdown-item" href="admin.html"><i class="fas fa-panel me-2 text-muted"></i> Panel de administracion</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i> Salir</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <div class="hero-section text-center">
+        <div class="hero-pattern"></div>
+        <div class="container hero-content">
+            <h1 class="display-4 fw-bold mb-3">Apoya lo local, compra en <br><span style="color: #ff9f43;">Tuxtla Gutiérrez</span></h1>
+            <p class="lead mb-4 opacity-75">Los mejores comercios de tu ciudad en una sola aplicación.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <button class="btn btn-cta shadow-lg"><i class="fas fa-store me-2"></i> Ver Comercios</button>
+                <button class="btn btn-outline-light rounded-pill px-4 fw-bold">Ofertas de Hoy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container pb-5">
+
+        <!-- CATEGORÍAS -->
+        <div class="row mb-5 g-4 justify-content-center" id="categoriesContainer">
+            <!-- Se llenan con JS -->
+        </div>
+
+        <!-- BANNER PUBLICIDAD / FIDELIZACIÓN -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="banner-points d-flex align-items-center justify-content-between">
+                    <div class="position-relative z-2">
+                        <h3><i class="fas fa-award me-2"></i> ¡Acumula Puntos Mercapp!</h3>
+                        <p class="mb-0">Gana el <strong>5%</strong> en puntos en cada compra y úsalos en cualquier negocio afiliado.</p>
+                    </div>
+                    <button class="btn btn-light text-warning fw-bold rounded-pill px-4 shadow-sm z-2">Ver mis puntos</button>
+                    <i class="fas fa-coins fa-10x text-white position-absolute end-0 bottom-0 opacity-25"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMERCIOS DESTACADOS -->
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <h3 class="section-title m-0">Comercios Destacados</h3>
+            <a href="#" class="text-decoration-none fw-bold" style="color: #6a11cb;">Ver todos <i class="fas fa-arrow-right small"></i></a>
+        </div>
+        
+        <div class="row mb-5 g-4" id="shopsContainer">
+            <!-- Se llenan con JS -->
+        </div>
+
+        <!-- PRODUCTOS POPULARES -->
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <h3 class="section-title m-0">Lo más vendido hoy</h3>
+            <a href="#" class="text-decoration-none fw-bold" style="color: #6a11cb;">Explorar <i class="fas fa-arrow-right small"></i></a>
+        </div>
+
+        <div class="row g-4" id="productsContainer">
+            <!-- Se llenan con JS -->
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="footer-logo mb-3"><i class="fas fa-shopping-basket me-2"></i>Mercapp</div>
+                    <p class="text-muted small">La plataforma que conecta a los pequeños y medianos comercios de Tuxtla con clientes como tú.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-secondary"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-secondary"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-secondary"><i class="fab fa-whatsapp fa-lg"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <h6 class="fw-bold mb-3">Comprar</h6>
+                    <ul class="list-unstyled small text-muted d-flex flex-column gap-2">
+                        <li><a href="#" class="text-decoration-none text-muted">Restaurantes</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Moda Local</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Tecnología</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 col-6">
+                    <h6 class="fw-bold mb-3">Empresa</h6>
+                    <ul class="list-unstyled small text-muted d-flex flex-column gap-2">
+                        <li><a href="#" class="text-decoration-none text-muted">Sobre Nosotros</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Vender en Mercapp</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Planes</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3">Suscríbete a ofertas</h6>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control border-end-0 bg-light" placeholder="Tu correo">
+                        <button class="btn btn-dark" type="button">Enviar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-5 pt-3 border-top">
+                <div class="col text-center text-muted small">
+                    &copy; 2025 Mercapp Tuxtla. Todos los derechos reservados.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Lógica Javascript (Simulación de Datos) -->
+    <script>
+        // DATOS MOCK (Simulando respuesta de tu API Node.js)
+        const categories = [
+            { name: "Comida", icon: "fa-hamburger" },
+            { name: "Tecnología", icon: "fa-laptop" },
+            { name: "Moda", icon: "fa-tshirt" },
+            { name: "Farmacia", icon: "fa-first-aid" },
+            { name: "Super", icon: "fa-shopping-basket" },
+            { name: "Hogar", icon: "fa-couch" }
+        ];
+
+        const shops = [
+            { name: "Tacos Ciro's", rating: 4.8, img: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=400&q=80", tag: "Restaurante" },
+            { name: "TechZone Tuxtla", rating: 4.5, img: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?auto=format&fit=crop&w=400&q=80", tag: "Tecnología" },
+            { name: "Artesanías Chiapas", rating: 5.0, img: "https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?auto=format&fit=crop&w=400&q=80", tag: "Local" }
+        ];
+
+        const products = [
+            { name: "Pozol de Cacao 1L", shop: "La Chiapaneca", price: 35.00, img: "https://images.unsplash.com/photo-1558230352-73a6a9b478d1?auto=format&fit=crop&w=400&q=80" },
+            { name: "Hamburguesa Especial", shop: "Burger King Local", price: 85.00, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" },
+            { name: "Vestido Bordado", shop: "Moda Ámbar", price: 450.00, img: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=400&q=80" },
+            { name: "Teclado Mecánico", shop: "TechZone", price: 899.00, img: "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=400&q=80" }
+        ];
+
+        // RENDERIZAR CATEGORÍAS
+        const catContainer = document.getElementById('categoriesContainer');
+        categories.forEach(cat => {
+            catContainer.innerHTML += `
+                <div class="col-4 col-md-2 category-item">
+                    <div class="category-icon">
+                        <i class="fas ${cat.icon}"></i>
+                    </div>
+                    <div class="category-name">${cat.name}</div>
+                </div>
+            `;
+        });
+
+        // RENDERIZAR COMERCIOS
+        const shopsContainer = document.getElementById('shopsContainer');
+        shops.forEach(shop => {
+            shopsContainer.innerHTML += `
+                <div class="col-md-4">
+                    <div class="card card-mercapp">
+                        <img src="${shop.img}" class="card-img-top" alt="${shop.name}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title fw-bold mb-0">${shop.name}</h5>
+                                <span class="badge bg-warning text-dark"><i class="fas fa-star small"></i> ${shop.rating}</span>
+                            </div>
+                            <span class="shop-badge">${shop.tag}</span>
+                            <p class="card-text text-muted small">Envíos en 30-45 min</p>
+                            <button class="btn btn-outline-primary btn-sm w-100 rounded-pill">Ver Tienda</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // RENDERIZAR PRODUCTOS
+        const prodContainer = document.getElementById('productsContainer');
+        products.forEach(prod => {
+            prodContainer.innerHTML += `
+                <div class="col-6 col-md-3">
+                    <div class="card card-mercapp h-100">
+                        <img src="${prod.img}" class="card-img-top" alt="${prod.name}">
+                        <div class="card-body d-flex flex-column">
+                            <span class="shop-badge mb-2 align-self-start">${prod.shop}</span>
+                            <h6 class="card-title fw-bold mb-1">${prod.name}</h6>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="price-tag">$${prod.price.toFixed(2)}</span>
+                                <button class="btn-add shadow-sm"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>

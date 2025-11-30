@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Mercapp - Panel de Control</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js (Para gráficas simples) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(180deg, #6a11cb 0%, #2575fc 100%);
+            --accent-color: #ff9f43;
+            --sidebar-width: 260px;
+            --bg-light: #f4f6f9;
+            --text-dark: #343a40;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-gradient);
+            color: white;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            padding: 20px;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 15px;
+            border-radius: 10px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* --- CONTENT --- */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* --- CARDS KPI --- */
+        .card-kpi {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: white;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.3s;
+        }
+
+        .card-kpi:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .kpi-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .bg-orange-light { background: rgba(255, 159, 67, 0.1); color: var(--accent-color); }
+        .bg-purple-light { background: rgba(106, 17, 203, 0.1); color: #6a11cb; }
+        .bg-blue-light { background: rgba(37, 117, 252, 0.1); color: #2575fc; }
+        .bg-green-light { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+
+        /* --- TABLES --- */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .table thead th {
+            border-bottom: 2px solid #f0f2f5;
+            color: #8898aa;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .product-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Responsive Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            background: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Secciones dinámicas */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tabs personalizados */
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            color: #6a11cb;
+            border-bottom: 3px solid #6a11cb;
+            font-weight: 600;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .menu-toggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toggle Mobile -->
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars text-primary"></i>
+    </button>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <a href="#" class="sidebar-brand">
+            <i class="fas fa-shopping-basket"></i> Mercapp Admin
+        </a>
+        
+        <nav class="nav flex-column">
+            <a class="nav-link active" onclick="showView('dashboard', this)">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
+            <a class="nav-link" onclick="showView('catalogo', this)">
+                <i class="fas fa-boxes"></i> Catálogo
+            </a>
+            <a class="nav-link" onclick="showView('usuarios', this)">
+                <i class="fas fa-users"></i> Usuarios
+            </a>
+            <a class="nav-link" onclick="showView('comercios', this)">
+                <i class="fas fa-store"></i> Comercios
+            </a>
+            <a class="nav-link" onclick="showView('pedidos', this)">
+                <i class="fas fa-shopping-bag"></i> Pedidos
+            </a>
+            <a class="nav-link" onclick="showView('planes', this)">
+                <i class="fas fa-tags"></i> Planes
+            </a>
+            <a class="nav-link" onclick="showView('reportes', this)">
+                <i class="fas fa-file-invoice-dollar"></i> Reportes
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-5">
+            <a href="#" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1" id="pageTitle">Resumen General</h2>
+                <p class="text-muted small">Bienvenido al panel de control de Mercapp Tuxtla.</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="position-relative">
+                    <i class="fas fa-bell text-secondary fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=6a11cb&color=fff" class="avatar shadow-sm" alt="Admin">
+            </div>
+        </div>
+
+        <!-- 1. VISTA DASHBOARD -->
+        <div id="dashboard" class="view-section active">
+            <!-- KPIs -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card-kpi">
+                        <div>
+                            <h6 class="text-muted mb-1">Ingresos Totales</h6>
+                            <h3 class="fw-bold mb-0">$12,450</h3>
+                            <small class="text-success"><i class="fas fa-arrow-up"></i> 12% mes actual</small>
+                        </div>
+                        <div class="kpi-icon bg-green-light"><i class="fas fa-wallet"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-kpi">
+                        <div>
+                            <h6 class="text-muted mb-1">Usuarios Activos</h6>
+                            <h3 class="fw-bold mb-0">1,240</h3>
+                            <small class="text-primary">Clientes + Comercios</small>
+                        </div>
+                        <div class="kpi-icon bg-blue-light"><i class="fas fa-users"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-kpi">
+                        <div>
+                            <h6 class="text-muted mb-1">Comercios</h6>
+                            <h3 class="fw-bold mb-0">85</h3>
+                            <small class="text-warning">12 pendientes de verificar</small>
+                        </div>
+                        <div class="kpi-icon bg-orange-light"><i class="fas fa-store"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-kpi">
+                        <div>
+                            <h6 class="text-muted mb-1">Pedidos Hoy</h6>
+                            <h3 class="fw-bold mb-0">42</h3>
+                            <small class="text-secondary">En proceso</small>
+                        </div>
+                        <div class="kpi-icon bg-purple-light"><i class="fas fa-box-open"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficas y Tablas Recientes -->
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="table-container h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold m-0">Últimos Pedidos</h5>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill">Ver todos</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cliente</th>
+                                        <th>Comercio</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentOrdersTable">
+                                    <!-- JS Load -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="table-container h-100">
+                        <h5 class="fw-bold mb-4">Nuevos Comercios</h5>
+                        <ul class="list-unstyled" id="newShopsList">
+                            <!-- JS Load -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. VISTA CATÁLOGO (CRUD PRODUCTOS Y CATEGORÍAS) -->
+        <div id="catalogo" class="view-section">
+            <div class="table-container">
+                <!-- TABS DE NAVEGACIÓN -->
+                <ul class="nav nav-tabs mb-4" id="catalogoTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="productos-tab" data-bs-toggle="tab" data-bs-target="#productos" type="button" role="tab">Productos</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="categorias-tab" data-bs-toggle="tab" data-bs-target="#categorias" type="button" role="tab">Categorías</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="catalogoTabContent">
+                    
+                    <!-- TAB PRODUCTOS -->
+                    <div class="tab-pane fade show active" id="productos" role="tabpanel">
+                        <div class="d-flex justify-content-between mb-4">
+                            <div class="d-flex gap-2 w-50">
+                                <input type="text" class="form-control" placeholder="Buscar producto...">
+                                <select class="form-select w-auto">
+                                    <option>Todos los comercios</option>
+                                    <option>Tacos Ciro's</option>
+                                    <option>TechZone</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary"><i class="fas fa-plus me-2"></i> Nuevo Producto</button>
+                        </div>
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Comercio</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <!-- JS Load -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- TAB CATEGORÍAS -->
+                    <div class="tab-pane fade" id="categorias" role="tabpanel">
+                        <div class="d-flex justify-content-between mb-4">
+                            <input type="text" class="form-control w-50" placeholder="Buscar categoría...">
+                            <button class="btn btn-primary"><i class="fas fa-plus me-2"></i> Nueva Categoría</button>
+                        </div>
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Icono</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría Padre</th>
+                                    <th>Productos Asignados</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody">
+                                <!-- JS Load -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. VISTA USUARIOS -->
+        <div id="usuarios" class="view-section">
+            <div class="table-container">
+                <div class="d-flex justify-content-between mb-4">
+                    <div class="d-flex gap-2">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Buscar usuario...">
+                        <select id="roleFilter" class="form-select w-auto">
+                            <option value="">Todos los roles</option>
+                            <option value="cliente">Cliente</option>
+                            <option value="comerciante">Comerciante</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+    <i class="fas fa-plus me-2"></i> Nuevo Usuario
+</button>
+                </div>
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Fecha Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 4. VISTA COMERCIOS -->
+        <div id="comercios" class="view-section">
+            <div class="table-container">
+                <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <div>Recuerda verificar la documentación antes de activar el "Check Azul".</div>
+                </div>
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Negocio</th>
+                            <th>Dueño</th>
+                            <th>Plan Actual</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shopsTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"> <div class="modal-content shadow"> <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-user-edit me-2 text-primary"></i>Editar Usuario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body pt-4">
+                <form id="formEditarUsuario">
+                    <input type="hidden" id="editUserId">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">NOMBRE COMPLETO</label>
+                        <input type="text" class="form-control form-control-lg fs-6" id="editNombre" required placeholder="Ej. Juan Pérez">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">CORREO</label>
+                            <input type="email" class="form-control" id="editCorreo" required placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">TELÉFONO</label>
+                            <input type="tel" class="form-control" id="editTelefono" placeholder="961 123 4567">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">ROL ASIGNADO</label>
+                        <select class="form-select" id="editRol">
+                            <option value="cliente">Cliente</option>
+                            <option value="comerciante">Comerciante</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light text-muted fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-bold px-4" id="btnGuardarCambios">
+                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal nuevo usuario -->
+<div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-user-plus me-2 text-primary"></i>Nuevo Usuario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body pt-4">
+                <form id="formNuevoUsuario">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">NOMBRE COMPLETO</label>
+                        <input type="text" class="form-control form-control-lg fs-6" id="newNombre" required placeholder="Ej. Maria Lopez">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">CORREO</label>
+                            <input type="email" class="form-control" id="newCorreo" required placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">TELÉFONO</label>
+                            <input type="tel" class="form-control" id="newTelefono" placeholder="961 123 4567">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">CONTRASEÑA</label>
+                        <input type="password" class="form-control" id="newPassword" required placeholder="******">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">ROL ASIGNADO</label>
+                        <select class="form-select" id="newRol">
+                            <option value="cliente" selected>Cliente</option>
+                            <option value="comerciante">Comerciante</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light text-muted fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-bold px-4" id="btnCrearUsuario">
+                    <i class="fas fa-check me-2"></i>Crear Usuario
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        console.log('bro?')
+        // --- DATOS MOCK (Basados en tu Schema SQL) ---
+        
+        // const mockUsers = [
+        //     { id: 1, name: "Kevin Escobar", email: "kevin@admin.com", role: "admin", date: "2023-01-15" },
+        //     { id: 2, name: "Tacos Ciro's", email: "contacto@ciros.com", role: "comerciante", date: "2023-02-10" },
+        //     { id: 3, name: "Juan Pérez", email: "juan@gmail.com", role: "cliente", date: "2023-03-22" },
+        //     { id: 4, name: "TechZone", email: "ventas@techzone.mx", role: "comerciante", date: "2023-04-05" },
+        // ];
+
+        const mockShops = [
+            { id: 1, name: "Tacos Ciro's", owner: "Kevin Escobar", plan: "Premium Tuxtla", verified: true, logo: "TC" },
+            { id: 2, name: "TechZone", owner: "Carlos Ruiz", plan: "Gratuito", verified: false, logo: "TZ" },
+            { id: 3, name: "Ropa Artesanal", owner: "Maria López", plan: "Gratuito", verified: false, logo: "RA" },
+        ];
+
+        const mockOrders = [
+            { id: 1024, client: "Juan Pérez", shop: "Tacos Ciro's", total: 250.00, status: "entregado" },
+            { id: 1025, client: "Ana García", shop: "TechZone", total: 1200.00, status: "procesando" },
+            { id: 1026, client: "Luis Diaz", shop: "Tacos Ciro's", total: 85.00, status: "pendiente" },
+        ];
+
+        // NUEVOS DATOS PARA EL CATÁLOGO
+        const mockCategories = [
+            { id: 1, name: "Comida", parent: null, count: 120, icon: "fa-utensils" },
+            { id: 2, name: "Tecnología", parent: null, count: 45, icon: "fa-laptop" },
+            { id: 3, name: "Tacos", parent: "Comida", count: 15, icon: "fa-angle-right" },
+        ];
+
+        const mockProducts = [
+            { id: 101, name: "Orden de Pastor", shop: "Tacos Ciro's", category: "Tacos", price: 65.00, stock: 50, active: true, img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=100&h=100&fit=crop" },
+            { id: 102, name: "Laptop Gamer HP", shop: "TechZone", category: "Tecnología", price: 15999.00, stock: 2, active: true, img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=100&h=100&fit=crop" },
+            { id: 103, name: "Coca Cola 600ml", shop: "Tacos Ciro's", category: "Bebidas", price: 25.00, stock: 0, active: false, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=100&h=100&fit=crop" },
+        ];
+
+        // --- LÓGICA DE NAVEGACIÓN ---
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        function showView(viewId, element) {
+            // Actualizar menú activo
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            element.classList.add('active');
+
+            // Actualizar Título
+            const titles = {
+                'dashboard': 'Resumen General',
+                'catalogo': 'Gestión de Catálogo',
+                'usuarios': 'Gestión de Usuarios',
+                'comercios': 'Administrar Comercios',
+                'pedidos': 'Historial de Pedidos',
+                'planes': 'Planes de Suscripción',
+                'reportes': 'Reportes Financieros'
+            };
+            document.getElementById('pageTitle').textContent = titles[viewId] || 'Panel';
+
+            // Mostrar Sección
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            const activeSection = document.getElementById(viewId);
+            if(activeSection) activeSection.classList.add('active');
+
+            // Cerrar menú en móvil
+            if(window.innerWidth < 992) toggleSidebar();
+        }
+
+        // --- RENDERS ---
+
+let allUsers = []; // Variable global para guardar los datos originales
+
+// 1. Función principal: Carga los datos de la API
+async function loadUsers() {
+    console.log('Iniciando carga de usuarios...');
+    const USERS_URL = "/usuarios"; 
+
+    try {
+        const res = await axios.get(USERS_URL);
+        allUsers = res.data; // Guardamos en memoria global
+        
+        console.log('Usuarios recibidos:', allUsers);
+
+        // Renderizamos todo al principio
+        renderTable(allUsers);
+        
+        // Activamos los escuchadores de los filtros
+        setupFilters();
+
+    } catch (err) {
+        console.error("Error al cargar usuarios:", err);
+        const usersTableBody = document.getElementById("usersTableBody");
+        if(usersTableBody) {
+             usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error al cargar datos</td></tr>';
+        }
+    }
+}
+
+// 2. Función dedicada SOLO a pintar la tabla
+function renderTable(usersList) {
+    const usersTableBody = document.getElementById("usersTableBody");
+    
+    if (!usersTableBody) return;
+
+    if (usersList.length === 0) {
+        usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No se encontraron coincidencias</td></tr>';
+        return;
+    }
+
+    usersTableBody.innerHTML = usersList.map(u => `
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2 text-primary fw-bold" style="width:35px;height:35px;">
+                        ${u.nombre_completo ? u.nombre_completo.charAt(0).toUpperCase() : '-'}
+                    </div>
+                    <div class="fw-bold">${u.nombre_completo || "-"}</div>
+                </div>
+            </td>
+            <td class="text-muted">${u.correo || "-"}</td>
+            <td>
+                <span class="badge ${u.rol === 'admin' ? 'bg-danger' : (u.rol === 'comerciante' ? 'bg-info' : 'bg-success')} text-capitalize">
+                    ${u.rol || "-"}
+                </span>
+            </td>
+            <td class="small">${u.fecha_registro || "-"}</td>
+            <td>
+                <button class="btn btn-sm btn-light text-primary btn-edit" data-id="${u.id_usuario}">
+                    <i class="fas fa-edit pointer-events-none"></i>
+                </button>
+                
+                <button class="btn btn-sm btn-light text-danger btn-delete" data-id="${u.id_usuario}">
+                    <i class="fas fa-trash pointer-events-none"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 3. Configuración de Filtros
+function setupFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const roleFilter = document.getElementById('roleFilter');
+
+    // Validación de seguridad por si faltan los IDs en el HTML
+    if (!searchInput || !roleFilter) return;
+
+    function applyFilters() {
+        const searchText = searchInput.value.toLowerCase();
+        const roleValue = roleFilter.value.toLowerCase();
+
+        const filteredUsers = allUsers.filter(user => {
+            const matchesSearch = (user.nombre_completo || '').toLowerCase().includes(searchText) || 
+                                  (user.correo || '').toLowerCase().includes(searchText);
+            
+            const matchesRole = roleValue === '' || (user.rol || '').toLowerCase() === roleValue;
+
+            return matchesSearch && matchesRole;
+        });
+
+        renderTable(filteredUsers);
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    roleFilter.addEventListener('change', applyFilters);
+}
+
+// 4. Configurar los clicks de la tabla (Delegación de eventos)
+function setupTableActions() {
+    const usersTableBody = document.getElementById("usersTableBody");
+
+    // Validación de seguridad
+    if (!usersTableBody) return;
+
+    usersTableBody.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.btn-edit');
+        const deleteBtn = e.target.closest('.btn-delete');
+
+        if (editBtn) {
+            const userId = editBtn.getAttribute('data-id');
+            editUser(userId);
+        }
+
+        if (deleteBtn) {
+            const userId = deleteBtn.getAttribute('data-id');
+            deleteUser(userId);
+        }
+    });
+}
+
+// 5. Lógica para Eliminar
+async function deleteUser(id) {
+    if (!confirm("¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.")) {
+        return;
+    }
+
+    try {
+        await axios.delete(`/usuarios/${id}`);
+        
+        // CORRECCIÓN AQUÍ: Usamos user.id_usuario
+        allUsers = allUsers.filter(user => user.id_usuario != id);
+        
+        // Actualizamos la vista
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.dispatchEvent(new Event('input')); 
+        } else {
+            renderTable(allUsers);
+        }
+        
+        alert("Usuario eliminado correctamente");
+
+    } catch (err) {
+        console.error(err);
+        alert("Error al eliminar el usuario.");
+    }
+}
+
+// 6. Lógica para Editar
+// A. Función para ABRIR el modal y cargar datos
+function editUser(id) {
+    const user = allUsers.find(u => u.id_usuario == id);
+    if (!user) return;
+
+    // --- ASEGÚRATE DE ESTO ---
+    // El value de 'editUserId' debe ser el NUMERO (id_usuario), no el rol.
+    document.getElementById('editUserId').value = user.id_usuario; 
+    
+    document.getElementById('editNombre').value = user.nombre_completo || '';
+    document.getElementById('editCorreo').value = user.correo || '';
+    document.getElementById('editTelefono').value = user.telefono || ''; 
+    document.getElementById('editRol').value = user.rol || 'cliente';
+
+    const modal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
+    modal.show();
+}
+
+// B. Función para GUARDAR los cambios
+function setupModalActions() {
+    const btnGuardar = document.getElementById('btnGuardarCambios');
+    
+    // Clonamos el botón para limpiar eventos anteriores
+    const newBtn = btnGuardar.cloneNode(true);
+    btnGuardar.parentNode.replaceChild(newBtn, btnGuardar);
+
+    newBtn.addEventListener('click', async () => {
+        // --- AQUÍ ESTABA EL PROBLEMA: CAPTURA DE DATOS ---
+        // Debemos asegurarnos de que cada variable tome el valor de su ID correspondiente en el HTML
+        
+        const id = document.getElementById('editUserId').value;         // El ID oculto
+        const nombre = document.getElementById('editNombre').value;     // El Input de texto
+        const correo = document.getElementById('editCorreo').value;     // El Input de email
+        const telefono = document.getElementById('editTelefono').value; // El Input de teléfono
+        const rol = document.getElementById('editRol').value;           // El Select
+
+        // DIAGNÓSTICO: Esto te mostrará en la consola qué estás enviando antes de que falle
+        console.log("Datos capturados del formulario:", {
+            id: id,
+            nombre: nombre,
+            correo: correo,
+            telefono: telefono,
+            rol: rol
+        });
+
+        // Validaciones básicas
+        if(!id) {
+            alert("Error fatal: No se cargó el ID del usuario. Recarga la página.");
+            return;
+        }
+        if(!nombre || !correo) {
+            alert("El nombre y el correo son obligatorios");
+            return;
+        }
+
+        // Creamos el objeto exactamente como lo espera la base de datos
+        const datosActualizados = {
+            nombre_completo: nombre, 
+            correo: correo,
+            telefono: telefono,
+            rol: rol
+        };
+
+        try {
+            // Enviamos la petición PUT usando el ID correcto en la URL
+            await axios.put(`/usuarios/${id}`, datosActualizados);
+
+            // Actualizar memoria local
+            const index = allUsers.findIndex(u => u.id_usuario == id); // Usamos == por si id es string y memoria int
+            if (index !== -1) {
+                allUsers[index] = { ...allUsers[index], ...datosActualizados };
+            }
+
+            // Refrescar tabla y cerrar
+            const searchInput = document.getElementById('searchInput');
+            if(searchInput) searchInput.dispatchEvent(new Event('input')); 
+            else renderTable(allUsers);
+            
+            // Cerrar modal
+            const modalElement = document.getElementById('modalEditarUsuario');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+
+            alert("Usuario actualizado correctamente");
+
+        } catch (err) {
+            console.error("Error al actualizar:", err);
+            alert("Error al guardar los cambios.");
+        }
+    });
+}
+
+function setupCreateUser() {
+    const btnCrear = document.getElementById('btnCrearUsuario');
+
+    btnCrear.addEventListener('click', async () => {
+        // 1. Obtener valores
+        const nombre = document.getElementById('newNombre').value;
+        const correo = document.getElementById('newCorreo').value;
+        const telefono = document.getElementById('newTelefono').value;
+        const password = document.getElementById('newPassword').value;
+        const rol = document.getElementById('newRol').value;
+
+        // 2. Validaciones
+        if (!nombre || !correo || !password) {
+            alert("Por favor completa los campos obligatorios (Nombre, Correo, Contraseña)");
+            return;
+        }
+
+        // 3. Preparar el objeto (Tal cual lo tienes en Postman)
+        const nuevoUsuario = {
+            nombre: nombre,
+            correo: correo,
+            contrasena: password,
+            telefono: telefono,
+            rol: rol
+        };
+
+        try {
+            // 4. Enviar al Backend (POST)
+            // Asumo que tu ruta para crear es POST /usuarios
+            const res = await axios.post('/usuarios', nuevoUsuario);
+            
+            console.log("Usuario creado:", res.data);
+
+            // 5. Actualizar la interfaz sin recargar
+            // Creamos un objeto temporal para la tabla. 
+            // IMPORTANTE: Tu tabla usa 'nombre_completo', pero el input es 'nombre'. Mapeamos aquí.
+            const usuarioParaTabla = {
+                id_usuario: res.data.id || res.data.insertId || Date.now(), // Intentamos obtener el ID nuevo
+                nombre_completo: nombre, // Adaptamos para que la tabla lo entienda
+                correo: correo,
+                telefono: telefono,
+                rol: rol,
+                fecha_registro: new Date().toISOString() // Fecha actual simulada
+            };
+
+            // Agregamos al inicio del array y repintamos
+            allUsers.unshift(usuarioParaTabla);
+            
+            // Limpiamos filtros y repintamos
+            const searchInput = document.getElementById('searchInput');
+            if(searchInput) {
+                searchInput.value = ''; // Limpiamos buscador para ver al nuevo usuario
+                searchInput.dispatchEvent(new Event('input'));
+            } else {
+                renderTable(allUsers);
+            }
+
+            // 6. Cerrar modal y limpiar formulario
+            const modalElement = document.getElementById('modalNuevoUsuario');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+            
+            document.getElementById('formNuevoUsuario').reset(); // Limpia los inputs
+
+            alert("Usuario creado exitosamente");
+
+        } catch (err) {
+            console.error("Error al crear usuario:", err);
+            alert("Error al crear el usuario. Verifica la consola.");
+        }
+    });
+}
+
+// 7. Iniciar al cargar el DOM
+document.addEventListener("DOMContentLoaded", () => {
+    loadUsers();
+    setupFilters();
+    setupTableActions();
+    setupModalActions(); // <--- AGREGA ESTO
+});
+
+
+
+        function renderShops() {
+            const tbody = document.getElementById('shopsTableBody');
+            tbody.innerHTML = mockShops.map(s => `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded bg-light d-flex align-items-center justify-content-center me-2 fw-bold" style="width:40px;height:40px;">${s.logo}</div>
+                            <div>
+                                <div class="fw-bold">${s.name}</div>
+                                <small class="text-muted">ID: #${s.id}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${s.owner}</td>
+                    <td><span class="badge ${s.plan.includes('Premium') ? 'bg-warning text-dark' : 'bg-light text-dark border'}">${s.plan}</span></td>
+                    <td>
+                        ${s.verified 
+                            ? '<span class="text-primary small"><i class="fas fa-check-circle"></i> Verificado</span>' 
+                            : '<span class="text-muted small"><i class="far fa-circle"></i> Sin verificar</span>'}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" title="Verificar"><i class="fas fa-check"></i></button>
+                        <button class="btn btn-sm btn-light" title="Ver Plan"><i class="fas fa-eye"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // También llenamos la lista lateral de dashboard
+            const list = document.getElementById('newShopsList');
+            list.innerHTML = mockShops.slice(0,3).map(s => `
+                <li class="d-flex align-items-center mb-3">
+                    <div class="rounded bg-light p-2 me-3"><i class="fas fa-store text-muted"></i></div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 small fw-bold">${s.name}</h6>
+                        <small class="text-muted" style="font-size:0.7rem">${s.plan}</small>
+                    </div>
+                    <small class="text-muted">2min</small>
+                </li>
+            `).join('');
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('recentOrdersTable');
+            const badges = {
+                'entregado': 'bg-success',
+                'pendiente': 'bg-warning text-dark',
+                'procesando': 'bg-info text-dark',
+                'cancelado': 'bg-danger'
+            };
+
+            tbody.innerHTML = mockOrders.map(o => `
+                <tr>
+                    <td class="fw-bold">#${o.id}</td>
+                    <td>${o.client}</td>
+                    <td>${o.shop}</td>
+                    <td class="fw-bold">$${o.total.toFixed(2)}</td>
+                    <td><span class="badge ${badges[o.status] || 'bg-secondary'}">${o.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // --- NUEVOS RENDERS PARA EL CATÁLOGO ---
+
+        function renderCategories() {
+            const tbody = document.getElementById('categoriesTableBody');
+            tbody.innerHTML = mockCategories.map(c => `
+                <tr>
+                    <td><div class="rounded bg-light text-primary d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="fas ${c.icon}"></i></div></td>
+                    <td class="fw-bold">${c.name}</td>
+                    <td class="text-muted small">${c.parent ? c.parent : '<span class="badge bg-light text-dark">Categoría Raíz</span>'}</td>
+                    <td>${c.count} productos</td>
+                    <td>
+                        <button class="btn btn-sm btn-light text-primary"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = mockProducts.map(p => `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="${p.img}" class="product-img" alt="${p.name}">
+                            <div>
+                                <div class="fw-bold">${p.name}</div>
+                                <small class="text-muted">ID: ${p.id}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${p.shop}</td>
+                    <td><span class="badge bg-light text-dark border">${p.category}</span></td>
+                    <td class="fw-bold">$${p.price.toFixed(2)}</td>
+                    <td>
+                        ${p.stock > 0 
+                            ? `<span class="text-success small fw-bold">${p.stock} unid.</span>` 
+                            : '<span class="text-danger small fw-bold">Agotado</span>'}
+                    </td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" ${p.active ? 'checked' : ''}>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-light text-primary"><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => {
+            // renderUsers();
+            renderShops();
+            renderOrders();
+            renderCategories();
+            renderProducts();
+            console.log('sdasd')
+        });
+
+    </script>
+</body>
+</html>
