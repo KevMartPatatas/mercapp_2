@@ -1,0 +1,120 @@
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .auth-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        width: 100%;
+        max-width: 900px;
+        min-height: 550px;
+        position: relative;
+      }
+
+      .auth-left {
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .auth-right {
+        background: url("https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80")
+          center/cover;
+        position: relative;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 40px;
+      }
+
+      .auth-right::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(106, 17, 203, 0.8) 0%,
+          rgba(37, 117, 252, 0.8) 100%
+        );
+      }
+
+      .auth-right-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .form-control {
+        background-color: #f0f2f5;
+        border: none;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+      }
+
+      .form-control:focus {
+        background-color: #e4e6e9;
+        box-shadow: none;
+        border: 1px solid #6a11cb;
+      }
+
+      .btn-mercapp {
+        background: #ff9f43;
+        border: none;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s;
+      }
+
+      .btn-mercapp:hover {
+        background: #ff8c1a;
+        transform: translateY(-2px);
+      }
+
+      .toggle-text {
+        cursor: pointer;
+        color: #6a11cb;
+        font-weight: 600;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .alert-custom {
+        display: none;
+        margin-top: 10px;
+        font-size: 0.9rem;
+      }

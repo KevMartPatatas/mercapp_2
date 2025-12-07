@@ -7,6 +7,7 @@ const usuariosRoute = require('./routes/users')
 const loginsRoute = require('./routes/login')
 const categoriasRoute = require('./routes/categorias')
 const productosRoute = require('./routes/productos')
+const pedidosRoute = require('./routes/pedido')
 const PORT = 3000;
 const path = require("path");
 
@@ -18,6 +19,7 @@ app.use('/usuarios', usuariosRoute);
 app.use('/login', loginsRoute);
 app.use('/categorias', categoriasRoute);
 app.use('/productos', productosRoute);
+app.use('/pedidos', pedidosRoute);
 
 app.use(express.static(path.join(__dirname, "../../frontend")));
 

@@ -150,3 +150,4 @@ INSERT INTO planes_suscripcion (nombre, precio, tasa_comision, beneficios_json) 
 ('Premium Tuxtla', 499.00, 5.00, '{"analitica": true, "anuncios_gratis": 5}');
 
 INSERT INTO categorias (nombre) VALUES ('Restaurantes'), ('Tecnología'), ('Ropa y Moda');
+

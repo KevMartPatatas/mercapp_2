@@ -36,6 +36,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { nombre, correo, contrasena, telefono, rol } = req.body;
+    console.error(contrasena)
 
     if (!nombre || !correo || !contrasena) {
       return res.status(400).json({ error: 'Faltan campos obligatorios (nombre, correo, contrasena)' });
